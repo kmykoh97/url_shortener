@@ -18,4 +18,4 @@ def parser(external_sites_url):
     
     return title
     
-print(parser('https://www.coingecko.com/en'))
+# print(parser('https://www.coingecko.com/en'))

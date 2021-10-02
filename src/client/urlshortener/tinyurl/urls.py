@@ -1,7 +1,7 @@
 from django.urls import path
 from django.urls import re_path
 from . import views
-from .views import url_detail_view, url_set, url_get, url_redirect, test_geo, view_analytics
+from .views import url_detail_view, url_set, url_get, url_redirect, geo_info, view_analytics
 
 
 
@@ -12,5 +12,5 @@ urlpatterns = [
     # endpoint test
     re_path(r'^set/(.+)', url_set, name='url_set'), # unit test endpoint for original url => short url
     path('<hashcode>/g', url_get, name='url_get'), # unit test endpoint for short url => original url
-    path('geo_info/', test_geo, name='geo_info'), # unit test endpoint for location
+    path('geo_info/', geo_info, name='geo_info'), # unit test endpoint for location
 ]
