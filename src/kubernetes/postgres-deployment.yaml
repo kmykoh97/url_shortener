@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: irnlogic/postgres:latest  # or just image: redis
+        image: kmykoh/postgres:latest
         resources:
           requests:
             cpu: 1

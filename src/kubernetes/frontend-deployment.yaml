@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: tinywebsite
-        image: irnlogic/djangotinyurl:1.0
+        image: kmykoh/client:1.0
         resources:
           requests:
             cpu: 1
