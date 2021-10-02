@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from tinyurl.models import Url, UrlAnalytics
-from .lib.tiny import UrlHandler
 from django.db.models import Count
 from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+from .lib.tiny import UrlHandler
 from .lib.parser import parser
+from .lib.urlvalidator import urlvalidator
 import time
 import requests
 # from .forms import UrlForm
@@ -22,12 +23,17 @@ def index(request):
     originalurldata = request.POST.get('name')
     
     if originalurldata:
+        originalurldataflag = urlvalidator(originalurldata) # returns true for valid url, false otherwise
+    else: 
+        originalurldataflag = False # if empty url, comfirm false
+        
+    if originalurldataflag:
         tinyurl = UrlHandler.get_tinyurl(originalurldata)
         titletag = parser(originalurldata)
         analyticsurl = get_full_url(request, tinyurl)+'/a'
         context = {ORIGINAL_URL: originalurldata, TINY_URL: get_full_url(request, tinyurl), TINY_ANALYTICS_URL: analyticsurl, TITLETAG: titletag}
     else:
-        context = {ORIGINAL_URL: originalurldata, TINY_URL: '', TITLETAG: ''}
+        context = {ORIGINAL_URL: "this url is not a valid url", TINY_URL: '', TITLETAG: ''}
     
     return render(request, 'index.html', context)
     

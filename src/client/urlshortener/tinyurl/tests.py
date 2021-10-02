@@ -2,6 +2,7 @@ from django.test import TestCase
 from tinyurl.models import Url
 from .lib.tiny import UrlHandler
 from .lib.parser import parser
+from .lib.urlvalidator import urlvalidator
 
 
 
@@ -54,7 +55,7 @@ class CustomTestCase(TestCase):
             self.assertEqual(reversegetoriginalurl, originalurldata)
         
         # giving random string
-        # it should be correct, but not able to redirect
+        # it should be correct, because we don't check using validator here. We will check using validator later
         originalurldata = "example string"
         tinyurl = UrlHandler.get_tinyurl(originalurldata)
         reversegetoriginalurl = UrlHandler.get_originalurl(tinyurl)
@@ -71,5 +72,26 @@ class CustomTestCase(TestCase):
         originalurl = "https://www.coingecko.com/en"
         titletag = parser(originalurl)
         self.assertEqual(titletag, "CoinGecko: Cryptocurrency Prices and Market Capitalization")
+        
+    # to test if url validator is working
+    def test_validator(self):
+        # correct case
+        url = "https://github.com/kmykoh97"
+        validatorresult = urlvalidator(url)
+        self.assertEqual(validatorresult, True) # checks if our lib returns true for correct url
+        url = "https://www.google.com/search?q=ibm&oq=ibm&aqs=chrome..69i57j35i39l2j69i60l5.552j0j7&sourceid=chrome&ie=UTF-8"
+        validatorresult = urlvalidator(url)
+        self.assertEqual(validatorresult, True)
+        
+        # wrong case
+        url = "www.google.com/"
+        validatorresult = urlvalidator(url)
+        self.assertEqual(validatorresult, False) # checks if our lib returns false for incorrect url
+        url = "coingecko is good"
+        validatorresult = urlvalidator(url)
+        self.assertEqual(validatorresult, False)
+        url = "helloworld.com"
+        validatorresult = urlvalidator(url)
+        self.assertEqual(validatorresult, False)
 
     # note that we do not need to check location service because it is api provided by ipstack
