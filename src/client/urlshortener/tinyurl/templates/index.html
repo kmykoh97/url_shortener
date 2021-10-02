@@ -1,0 +1,33 @@
+<!docktype html>
+<html>
+<head>
+    <title>
+       Shortened url
+    </title>
+    <style type=text/css>
+    #t  {color:blue}
+    #c {
+        font-family:arial;
+        color:blue
+    }
+    </style>
+</head>
+
+<body>
+
+    <form method="post">
+        {% csrf_token %}
+        Url: <input type="text" name="name">
+        <button type="submit">get short url</button>
+    </form>
+    
+    <br>
+    
+    Website title: {{title}} <br>
+    Original long url: {{originalurl}} <br>
+    Generated short url: {{tinyurl}} or <a href={{tinyurl}}>click here to redirect</a> <br> 
+    Short url usage analytics: {{analytics}} or <a href={{analytics}}>click here to redirect</a>
+
+</body>
+
+</html>
