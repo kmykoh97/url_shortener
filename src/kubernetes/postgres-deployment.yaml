@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: kmykoh/postgres:latest
+        image: kmykoh/postgres:1.0
         resources:
           requests:
             cpu: 1

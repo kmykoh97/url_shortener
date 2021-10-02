@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: kmykoh/redis
+        image: kmykoh/redis:1.0
         resources:
           requests:
             cpu: 1000m

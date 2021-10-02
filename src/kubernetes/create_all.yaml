@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: irnlogic/redis  # or just image: redis
+        image: kmykoh/redis
         resources:
           requests:
             cpu: 100m
@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: irnlogic/postgres  # or just image: redis
+        image: kmykoh/postgres
         resources:
           requests:
             cpu: 100m
@@ -121,7 +121,7 @@ spec:
     spec:
       containers:
       - name: tinywebsite
-        image: irnlogic/djangotinyurl
+        image: kmykoh/client
         resources:
           requests:
             cpu: 100m
