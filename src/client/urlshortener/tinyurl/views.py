@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from tinyurl.models import Url, UrlAnalytics
+from tinyurl.models import Url, UrlAnalytics, TitleTag
 from django.db.models import Count
 from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 from .lib.tiny import UrlHandler
@@ -29,7 +29,11 @@ def index(request):
         
     if originalurldataflag:
         tinyurl = UrlHandler.get_tinyurl(originalurldata)
-        titletag = parser(originalurldata)
+        if TitleTag.objects.filter(longurl=originalurldata).exists(): # if present in database
+            titletagobject = TitleTag.objects.get(longurl=originalurldata)
+            titletag = titletagobject.titletag
+        else: # new address
+            titletag = parser(originalurldata)
         analyticsurl = get_full_url(request, tinyurl)+'/a'
         context = {ORIGINAL_URL: originalurldata, TINY_URL: get_full_url(request, tinyurl), TINY_ANALYTICS_URL: analyticsurl, TITLETAG: titletag}
     else:

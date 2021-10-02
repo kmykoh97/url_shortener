@@ -16,7 +16,7 @@ def parser(external_sites_url):
     external_sites_html = urlopen(req).read()
     soup = BeautifulSoup(external_sites_html, "html.parser")
     
-    # some website's title is embedded very deep resulting in bs4 not able to scrap them
+    # some website's title is embedded very deep resulting in bs4 not able to scrap them ie: https://www.youtube.com/
     # we need to do exception for them manually
     try:
         title = soup.title.string

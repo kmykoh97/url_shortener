@@ -1,5 +1,5 @@
 from django.test import TestCase
-from tinyurl.models import Url
+from tinyurl.models import Url, UrlAnalytics, TitleTag
 from .lib.tiny import UrlHandler
 from .lib.parser import parser
 from .lib.urlvalidator import urlvalidator
@@ -15,11 +15,22 @@ class CustomTestCase(TestCase):
         
     # to test if db workable
     def test_db(self):
+        # Url table
         testobject = Url.objects.get(shorturl="f1db86")
         # self.assertEqual(getattr(testobject, "originalurl"), "https://www.coingecko.com/en/coins/deez-nuts")
         self.assertEqual(testobject.originalurl, "https://www.coingecko.com/en/coins/deez-nuts")
         testobject = Url.objects.get(shorturl="exshorturl")
         self.assertEqual(testobject.originalurl, "https://github.com/kmykoh97")
+        
+        # UrlAnalytics table
+        new_UrlAnalyticsObject = UrlAnalytics(url=testobject, countrycode="MY") # reuse above testobject for ease
+        new_UrlAnalyticsObject.save() # equavalent to UrlAnalytics.objects.create() but doing this for broader test cases
+        self.assertEqual(new_UrlAnalyticsObject.countrycode, "MY") # checks country code
+        
+        # TitleTag table
+        new_TitleTagObject = TitleTag(longurl="https://www.google.com/", titletag="Google")
+        new_TitleTagObject.save()
+        self.assertEqual(new_TitleTagObject.titletag, "Google") # checks title tag
     
     # to test if core url shortener algorithm is correct
     def test_core_cal_tiny(self):
