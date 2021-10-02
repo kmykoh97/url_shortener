@@ -37,42 +37,55 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 ## Deployment
 
 1. Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
-1. clone this repository
-2. run ```cd src```
-3. run ```docker-compose up```
-4. visit http://ip:3000
+2. Clone this repository
+3. Run: 
+```sh
+cd src
+docker-compose up
+```
+4. Visit http://ip:3000
 
 ## API Endpoints
 
-- /
-- /set/<original_url>
-- /<short_url>
-- /<short_url>/r
-- /<short_url>/a
+Defined in src/client/urlshortener/tinyurl/urls.py
 
 ## Analytics
 
-We can use Google Analytics but that requires a domain(and our data!). For this assignment, manual requests' data collection is enough.
+We can use Google Analytics but that requires a domain(and our data!). For this assignment, manual requests' data collection is enough. We created a UrlAnalytics table in our DB for this purpose. We also exposed an endpoint(http://ip:3000/shorturl/a/) for easier view.
 
 ## Test
 
-### Performance test
-
 ### Functional test
+
+Most functional unit tests written in `src/client/urlshortener/tinyurl/tests.py`. Unit tests' detail are written as comments.
 
 ### Endpoint test
 
+For some endpoint test not coverable in functional test, we exposed some extra endpoint to test the Django views with their respecive components. (In `src/client/urlshortener/tinyurl/urls.py`)
+
+- url_set: To test if endpoint can return correct short url calculated by our lib and if they are persistent in DB or cache.
+- url_get: To test if user can recover the short url back to original url and display them correctly in view.
+- geo_info: To test functionality of api provided by ipstack to read location based on ip address. We do not check this in unit test because API is provided by ipstack.
+
+### Performance test
+
+Performance test should not be an issue for this assignment because our design is easily scalable by Kubernetes. However, we will still check for it to ensure it is not some demo project which doesn't work for more than 2 simultaneous users. Performamce test done inside test directory.
+
 ## Examples
 
+
 ![](img/example1.PNG)
+![](img/example2.PNG)
+![](img/example3.PNG)
 
 ## Follow up
 
-- async for some critical time functions
-- ditributed key-value service as middleware for cache and database for even more robust and scalable content distribution. [Demo application](https://github.com/kmykoh97/distributed-key-value-database)
+- Async for some critical time functions
+- Distributed key-value service as middleware for cache and database for even more robust and scalable content distribution. [Demo application](https://github.com/kmykoh97/distributed-key-value-database)
 - CDN
 - Kubernetes
 - Full CI integration with Jenkins
+- Possibly extending to production
 
 
 *Special thanks to CoinGecko for this assignment*
