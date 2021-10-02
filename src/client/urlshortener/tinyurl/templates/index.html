@@ -1,19 +1,6 @@
-<!docktype html>
-<html>
-<head>
-    <title>
-       Shortened url
-    </title>
-    <style type=text/css>
-    #t  {color:blue}
-    #c {
-        font-family:arial;
-        color:blue
-    }
-    </style>
-</head>
+{% extends 'base.html' %}
 
-<body>
+{% block content %}
 
     <form method="post">
         {% csrf_token %}
@@ -28,6 +15,4 @@
     Generated short url: {{tinyurl}} or <a href={{tinyurl}}>click here to redirect</a> <br> 
     Short url usage analytics: {{analytics}} or <a href={{analytics}}>click here to redirect</a>
 
-</body>
-
-</html>
+{% endblock %}

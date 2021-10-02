@@ -11,7 +11,7 @@ import requests
 
 
 
-# global view variables
+# global variables
 ORIGINAL_URL = 'originalurl'
 TINY_URL = 'tinyurl'
 TITLETAG = 'title'
@@ -68,29 +68,7 @@ def url_get(request, hashcode=None):
 
     return render(request, "geturl.json", context)
 
-def redirect_analytics(request, hashcode):
-    # tinyurl = get_full_url(request, hashcode)
-    urlparent = Url.objects.get(shorturl=hashcode)
-    requestgeo = geo_result(request).get('country_code')
-    if requestgeo == None:
-        requestgeo = 'private'
-    new_analytics = UrlAnalytics(url=urlparent, countrycode=requestgeo)
-    new_analytics.save()
-    
-    # if Geo.objects.filter(countrycode=requestgeo).exists():
-    #     old_geo = Geo.objects.get(countrycode=requestgeo)
-    #     old_geo.noclicks = old_geo.noclicks + 1
-    #     old_geo.save()
-    #     new_analytics = UrlAnalytics(url=urlparent, geo=oldgeo)
-    #     new_analytics.save()
-    # else:
-    #     new_geo = Geo(countrycode=requestgeo)
-    #     new_geo.save()
-    #     new_analytics = UrlAnalytics(url=urlparent, geo=newgeo)
-    #     new_analytics.save()
-        
-    print('redirection record completed')
-
+# redirect to original url
 def url_redirect(request, hashcode=None):
     if hashcode:
         original_url = UrlHandler.get_originalurl(hashcode)
@@ -103,24 +81,42 @@ def url_redirect(request, hashcode=None):
         print ("Missing short code")
     
     return JsonResponse({'error': 'some error occur'})
+    
+# display analytics for short url
+def view_analytics(request, hashcode):
+    old_url = Url.objects.get(shorturl=hashcode)
+    noofclicks = UrlAnalytics.objects.filter(url=old_url).count()
+    if noofclicks == 0:
+        return JsonResponse({'noofclicks': noofclicks, 'detail': 'link never used'})
+    lastcountrycode = UrlAnalytics.objects.filter(url=old_url).latest('timestamp').countrycode
+    lastcountrycodetime = UrlAnalytics.objects.filter(url=old_url).latest('timestamp').timestamp
+    most_common_country = UrlAnalytics.objects.annotate(mc=Count('countrycode')).order_by('-mc')[0].countrycode
+    
+    return JsonResponse({'clicks': noofclicks, 'last used country': lastcountrycode, 'most frequently use country': most_common_country, 'last used time': naturaltime(lastcountrycodetime)})
+    
+# view for location detail
+def geo_info(request):
+    return JsonResponse(geo_result(request))
 
 # helper function
+# record information in DB during short link redirection
+def redirect_analytics(request, hashcode):
+    urlparent = Url.objects.get(shorturl=hashcode)
+    requestgeo = geo_result(request).get('country_code')
+    if requestgeo == None:
+        requestgeo = 'private'
+    new_analytics = UrlAnalytics(url=urlparent, countrycode=requestgeo)
+    new_analytics.save()
+        
+    print('redirection record completed')
+    
+# helper function
+# get a complete short url address to display
 def get_full_url(request, path):
     return  request.scheme + "://" +  request.get_host() + "/" + path
 
 # helper function
-def get_param_from_request(request, key):
-    print ("getParamFromRequest. GET = {} \n POST {} \n".format(request.GET, request.POST) )
-    ret = None
-    
-    if key in request.GET:
-        ret = request.GET[key]
-    else:
-        if key in request.POST:
-            ret = request.POST[key]
-
-    return ret
-
+# get the location detail from ipstack
 def geo_result(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
    
@@ -137,25 +133,3 @@ def geo_result(request):
     # print(geo_info.get('country_code'))
     
     return geo_info
-    
-def view_analytics(request, hashcode):
-    old_url = Url.objects.get(shorturl=hashcode)
-    noofclicks = UrlAnalytics.objects.filter(url=old_url).count()
-    if noofclicks == 0:
-        return JsonResponse({'noofclicks': noofclicks, 'detail': 'link never used'})
-    lastcountrycode = UrlAnalytics.objects.filter(url=old_url).latest('timestamp').countrycode
-    lastcountrycodetime = UrlAnalytics.objects.filter(url=old_url).latest('timestamp').timestamp
-    most_common_country = UrlAnalytics.objects.annotate(mc=Count('countrycode')).order_by('-mc')[0].countrycode
-    
-    return JsonResponse({'clicks': noofclicks, 'last used country': lastcountrycode, 'most frequently use country': most_common_country, 'last used time': naturaltime(lastcountrycodetime)})
-    
-# def test(request):
-#     form = UrlForm()
-    
-#     return "test"
-
-def test_geo(request):
-    return JsonResponse(geo_result(request))
-
-
-

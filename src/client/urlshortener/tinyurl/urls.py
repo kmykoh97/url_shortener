@@ -6,12 +6,11 @@ from .views import url_detail_view, url_set, url_get, url_redirect, test_geo, vi
 
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('geolocation/', test_geo, name='test_geo'),
-    path('url/', url_detail_view, name='url_detail' ),
-    re_path(r'^set/(.+)', url_set, name='url_set'),
-    path('<hashcode>/g', url_get, name='url_get'),
-    path('<hashcode>/', url_redirect, name='url_redirect'),
-    path('<hashcode>/a/', view_analytics, name='url_analytics'),
-    # path('test', views.test, name='test'),
+    path('', views.index, name='index'), # mainpage with ui for all endpoints below integrated
+    path('<hashcode>/', url_redirect, name='url_redirect'), # redirection
+    path('<hashcode>/a/', view_analytics, name='url_analytics'), # short url's analytics
+    # endpoint test
+    re_path(r'^set/(.+)', url_set, name='url_set'), # unit test endpoint for original url => short url
+    path('<hashcode>/g', url_get, name='url_get'), # unit test endpoint for short url => original url
+    path('geo_info/', test_geo, name='geo_info'), # unit test endpoint for location
 ]

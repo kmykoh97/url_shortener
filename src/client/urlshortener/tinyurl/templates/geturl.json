@@ -1,9 +1,9 @@
 <!docktype html>
 <html>
-<head><title>Tinyurl</title></head>
+<head><title>Short url</title></head>
 <body>
  <p>
- {{tinyurl}} : {{originalurl}} 
+ {{originalurl}} 
 </p>   
 </body>
 </html>

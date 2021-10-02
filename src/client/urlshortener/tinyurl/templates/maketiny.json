@@ -2,13 +2,12 @@
 <html>
 <head>
     <title>
-        Tinyurl
+        Short url
     </title>
 </head>
 <body>
  <p>
-  {{title}}
-  {{originalurl}} ==> {{tinyurl}}
+ {{tinyurl}}
 </p>     
 </body>
 </html>
