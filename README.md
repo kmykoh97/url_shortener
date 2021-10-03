@@ -6,10 +6,12 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 
 - High read performance
     - For url shortener, read performance is more important than write. We will design a caching mechanism to accomodate this observation.
+- Microservice
+    - Our design of separate microservices ease development and debugging workflow, also enhance scaling capability. Microservice also greatly helps us in deciding bottleneck of our application.
 - Easy to deploy
     - We use Docker compose for 1 line service deployment.
 - Scalable
-    - We write every microservice into their respective Dockerfiles, so Kubernetes deployment will be easier later.
+    - We write every microservice into their respective Dockerfiles, so Kubernetes deployment will be easier. Kubernetes also replicates part of CDN benefits.
 
 ## System design
 
@@ -38,6 +40,8 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 
 ## Deployment
 
+Single server deployment with docker-compose without auto scaling:
+
 1. Install [Docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose: `sudo apt install docker-compose`
 2. Clone this repository
 3. Run: 
@@ -47,12 +51,29 @@ docker-compose up
 ```
 4. Visit http://ip:3000
 
+### Update (4/10/2021)
+
+Now, we can deploy this application using Kubernetes for auto scaling! (also 2 liner deployment through yaml)
+
+In Google cloud console, run:
+
+```bash
+# git clone this repository and cd into src
+# Optional: you can push your modified project files as new containers in your docker repository as below
+# docker login
+# docker build . -t <dockerusername>/microservicename:1.0
+# docker push <dockerusername>/microservicename:1.0
+gcloud container clusters create tinyurl-cluster --num-nodes=3 --zone=us-west1-b
+kubectl apply -f kubernetes_all.yaml
+kubectl get services # get external ip address then navigate with browser to http://external_ip:8001
+```
 
 ## Databases
 
 We use Django as ORM to PostgreSQL DB. This saves us a lot of works and troubles of writing SQL queries.
 
 Models are defined in `src/client/urlshortener/tinyurl/models.py`. Snippet:
+
 ```python
 # table to store Url mappings
 class Url(models.Model):
@@ -118,8 +139,6 @@ We can still do a lot to improve our application, including:
 
 - Async for some critical time functions
 - Distributed key-value service as middleware for cache and database for even more robust and scalable content distribution. [Demo application](https://github.com/kmykoh97/distributed-key-value-database)
-- CDN
-- Kubernetes
 - Full CI integration with Jenkins
 
 *Special thanks to CoinGecko for this assignment*
