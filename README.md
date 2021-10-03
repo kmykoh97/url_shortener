@@ -20,7 +20,7 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 ### Microservice components
 
 1. Client
-    - For ease of development, we chose Django to implement both frontend and backend. Django is also great for scaling(Containerizeation).
+    - For ease of development, we chose Django to implement both frontend and backend. Django is also great for scaling(Containerization).
     - Django will receive original url input then return a shortened url. Django web server implements the rest API end points and interacts with Postgres and Redis services.
     - We will also record users' usage in DB for analytics(Table might be very huge so need to clean data once in a while).
 2. RDMS
@@ -30,9 +30,11 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 
 ### Procedure
 
-1. First, client get original url from user, then send it to hashlib module for md5 hashing. However, collision might occur. We will slide left over md5 hash if collision occurs. It is astronomically unlikely we will ever face any complete hash collision.
-2. Original url and Shortened url will be saved to PostgreSQL database. We assume write operations are severely lesser than read.
+1. First, client get original url from user. Before any transaction, we will check for url's validity. Upon verification, url is sent to hashlib module for md5 hashing. However, collision might occur. We will slide left over md5 hash if collision occurs. It is astronomically unlikely we will ever face any complete hash collision.
+2. Original url and shortened url will be saved to PostgreSQL database. We assume write operations are severely lesser than read.
 3. When user wants to redirect to the original url, first an attempt to fetch the original url from the Redis cache is made. For cache-miss, we fetch original url from PostgreSQL, then cache it and return the original Url.
+4. For every access to our short url redirection service, we will save some details including location in our database. Location identification provided by ipstack. Data will be used in analytics later.
+5. Title tag will be parsed using urllib and bs4. We need to store Title Tag to prevent application from running scraper all the time for same urls. If we try to save everything in a single table, it might become huge and impose serious problems over time. Therefore we design our applcation with a separate table(horizontal sharding) for free deletion in case it becomes our performance bottleneck
 
 ## Deployment
 
@@ -44,6 +46,34 @@ cd src
 docker-compose up
 ```
 4. Visit http://ip:3000
+
+
+## Databases
+
+We use Django as ORM to PostgreSQL DB. This is save us a lot of work and trouble of writing SQL queries. 
+
+Models are defined in `src/client/urlshortener/tinyurl/models.py`. Snippet:
+```python
+# table to store Url mappings
+class Url(models.Model):
+    shorturl = models.CharField(max_length=15, primary_key=True)
+    originalurl = models.CharField(max_length=500)
+
+# table to record each redirection used
+# foreign key to Url for more efficient analytics
+class UrlAnalytics(models.Model):
+    url = models.ForeignKey(Url, on_delete=models.CASCADE)
+    countrycode = models.CharField(max_length=10)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+# this table stores Title Tag to prevent application from running scraper all the time for same urls
+# we create a new model in DB because of scaling consideration
+# this TitleTag table might become huge and impose serious problems over time
+# with a separate table(horizontal sharding), we can freely delete the whole table(or partial) if ever this table becomes our performance bottleneck
+class TitleTag(models.Model):
+    longurl = models.CharField(max_length=500)
+    titletag = models.CharField(max_length=150)
+```
 
 ## API Endpoints
 
@@ -57,7 +87,7 @@ We can use Google Analytics but that requires a domain(and our data!). For this 
 
 ### Functional test
 
-Most functional unit tests written in `src/client/urlshortener/tinyurl/tests.py`. Unit tests' detail are written as comments.
+Most functional unit tests written in `src/client/urlshortener/tinyurl/tests.py`. Details are written as comments.
 
 ### Endpoint test
 
@@ -73,19 +103,23 @@ Performance test should not be an issue for this assignment because our design i
 
 ## Examples
 
-
+deployment:
 ![](img/example1.PNG)
+
+frontend and result:
 ![](img/example2.PNG)
+
+redirection analytics:
 ![](img/example3.PNG)
 
 ## Follow up
+
+We can still do a lot to improve our application, including:
 
 - Async for some critical time functions
 - Distributed key-value service as middleware for cache and database for even more robust and scalable content distribution. [Demo application](https://github.com/kmykoh97/distributed-key-value-database)
 - CDN
 - Kubernetes
 - Full CI integration with Jenkins
-- Possibly extending to production
-
 
 *Special thanks to CoinGecko for this assignment*
