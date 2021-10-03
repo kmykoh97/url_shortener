@@ -28,7 +28,7 @@ class UrlHandler():
         start = time.time()
         db_obj = UrlHandler._get_or_create_in_db(originalurl)
         end = time.time()
-        logging.info("Tinurl created {} in {} in seconds".format(db_obj.shorturl, end-start))
+        logging.info("Short url created {} in {} in seconds".format(db_obj.shorturl, end-start))
         
         return db_obj.shorturl
 
@@ -49,25 +49,25 @@ class UrlHandler():
         return obj 
 
     @staticmethod
-    def get_originalurl(tinurl):
-        logging.debug ("Original url requested for {}".format(tinurl))
+    def get_originalurl(shorturl):
+        logging.debug ("Original url requested for {}".format(shorturl))
         # attempt to lookup  Redis cache
         start = time.time()
-        originalurl = UrlHandler.redis_get(tinurl)
+        originalurl = UrlHandler.redis_get(shorturl)
         
         if originalurl:
             logging.info ("Cache hit. Redis returned url {} in {} seconds".format(originalurl, time.time()-start))
             
             return originalurl
 
-        logging.info ("Cache miss for {}".format(tinurl))
+        logging.info ("Cache miss for {}".format(shorturl))
         # cache-miss, fetch from database
         url = None
         
         try:
-            url = Url.objects.get(shorturl=tinurl)
+            url = Url.objects.get(shorturl=shorturl)
             # cache the response
-            UrlHandler.redis_set(tinurl, url.originalurl)        
+            UrlHandler.redis_set(shorturl, url.originalurl)        
         except Url.DoesNotExist:
             logging.error ("Invalid url code")
             return None
