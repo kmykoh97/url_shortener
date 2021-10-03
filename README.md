@@ -38,7 +38,7 @@ This project replicates parts of [tinyurl](https://tinyurl.com/app)
 
 ## Deployment
 
-1. Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
+1. Install [Docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose: `sudo apt install docker-compose`
 2. Clone this repository
 3. Run: 
 ```sh
@@ -50,7 +50,7 @@ docker-compose up
 
 ## Databases
 
-We use Django as ORM to PostgreSQL DB. This is save us a lot of work and trouble of writing SQL queries. 
+We use Django as ORM to PostgreSQL DB. This saves us a lot of works and troubles of writing SQL queries.
 
 Models are defined in `src/client/urlshortener/tinyurl/models.py`. Snippet:
 ```python
