@@ -40,13 +40,6 @@ def index(request):
         context = {ORIGINAL_URL: "this url is not a valid url", TINY_URL: '', TITLETAG: ''}
     
     return render(request, 'index.html', context)
-    
-# test view
-def url_detail_view(request):
-    url = Url.objects.get(id=1)
-    context = {ORIGINAL_URL: url.originalurl}
-    
-    return render(request, "detail.html", context)
 
 # set shortened url
 def url_set(request, url=None):
